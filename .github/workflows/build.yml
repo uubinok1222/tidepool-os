@@ -1,0 +1,48 @@
+name: Build Tidepool OS
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cài môi trường (nasm, gcc, xorriso, grub)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            build-essential nasm xorriso mtools grub-pc-bin grub-common
+
+      - name: Build tidepool.iso
+        run: make iso
+
+      - name: Kiểm tra header Multiboot2
+        run: grub-file --is-x86-multiboot2 build/kernel.elf
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: tidepool-iso
+          path: tidepool.iso
+          if-no-files-found: error
+
+      # Bước phụ: bật QEMU không màn hình, chụp ảnh giao diện để xem ngay trên GitHub.
+      # Nếu bước này lỗi thì ISO ở trên vẫn dùng được.
+      - name: Chụp màn hình bằng QEMU
+        continue-on-error: true
+        run: |
+          sudo apt-get install -y --no-install-recommends qemu-system-x86 netpbm
+          (sleep 15; echo "screendump shot.ppm"; sleep 2; echo quit) | \
+            timeout 90 qemu-system-x86_64 -cdrom tidepool.iso -m 256M -vga std \
+              -display none -monitor stdio
+          pnmtopng shot.ppm > screenshot.png
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tidepool-screenshot
+          path: screenshot.png
+          if-no-files-found: ignore
