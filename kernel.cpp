@@ -331,7 +331,7 @@ static void text_center(const Face& f, int cx, int base, const char* s, u32 c, u
 // ---------------------------------------------------------------------------
 typedef void (*IconFn)(int cx, int cy, int s, u32 fg, u32 bg);
 
-static void ico_folder(int cx, int cy, int s, u32 fg, u32) {
+static void ico_folder(int cx, int cy, int s, u32 fg, u32 bg) {
     int x = cx - s / 2, y = cy - s * 5 / 16;
     rr(x, y, s * 7 / 16, s * 4 / 16, rad(s / 12 + 1), fg, 150);
     rr(x, y + s * 2 / 16, s, s * 10 / 16, rad(s / 7), fg, 150);
@@ -348,7 +348,7 @@ static void ico_gear(int cx, int cy, int s, u32 fg, u32 bg) {
     disc(c16x, c16y, s * 16 * 3 / 16, bg, 255);
 }
 
-static void ico_close(int cx, int cy, int s, u32 fg, u32) {
+static void ico_close(int cx, int cy, int s, u32 fg, u32 bg) {
     seg((cx - s / 2) * 16, (cy - s / 2) * 16, (cx + s / 2) * 16, (cy + s / 2) * 16, 14, fg);
     seg((cx - s / 2) * 16, (cy + s / 2) * 16, (cx + s / 2) * 16, (cy - s / 2) * 16, 14, fg);
 }
@@ -395,7 +395,7 @@ static void win_draw_frame(const Win& w) {
     
     // Close button (right side of titlebar)
     int close_x = w.x + w.w - 26, close_y = w.y + 16;
-    ico_close(close_x, close_y, 10, fg);
+    ico_close(close_x, close_y, 10, fg, PAPER);
 }
 
 static void win_toggle_maximize(Win& w) {
